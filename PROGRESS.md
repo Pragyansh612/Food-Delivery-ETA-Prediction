@@ -144,4 +144,14 @@ timestamps, honest notes -- not a polished doc.
   Train/test target means are close (26.25 vs 26.59), so no obvious
   regime shift between the two periods.
 
-**Next up:** baseline linear regression (step 8).
+- **Baseline: Linear Regression.** Notebook section 7, mirrored in
+  `src/train_baseline.py` + `src/evaluate.py`. Standardized features,
+  fit on train, evaluated on the held-out time-based test set.
+  **MAE=4.779, RMSE=5.981, R2=0.605.** Predicted-vs-actual scatter looks
+  like a real linear fit (band around the diagonal, more scatter at the
+  extremes) -- nothing suspicious. R2 of 0.6 is in the range I'd expect
+  for a model using only order-time metadata (no live GPS, no real-time
+  prep-queue signal), not implausibly high. This is the number every
+  other model gets compared against.
+
+**Next up:** Random Forest + XGBoost comparison (step 9).
