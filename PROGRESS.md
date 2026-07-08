@@ -219,3 +219,31 @@ timestamps, honest notes -- not a polished doc.
 **Core ETA project (Product.md steps 1-10) is complete.** Next: README
 and INTERVIEW_NOTES.md (step 12), then -- only if time remains -- the
 optional recommendation stretch goal (step 11).
+
+- **README + INTERVIEW_NOTES.md.** Wrote both per Product.md section 4
+  and the Interview Preparation Notes section. Every number in both docs
+  was copied from actual notebook/script output, cross-checked against
+  the notebook cells while writing (not retyped from memory).
+
+- **Recommendation stretch goal: decided not to attempt it.** Checked
+  the dataset's full column list specifically for this: there is no
+  customer/user identifier anywhere in this data (`Delivery_person_ID`
+  is the *courier*, not the customer; there are 1,320 unique couriers
+  and 704 unique restaurant coordinate pairs, but zero customer IDs).
+  A collaborative-filtering recommender fundamentally needs repeated
+  user-item interactions to learn from. Building one here would mean
+  either faking customer IDs or repurposing courier-restaurant pairs as
+  the "interaction matrix" -- which would really be modeling "which
+  restaurants does this courier deliver from most," not "which
+  restaurants would this customer like," and presenting that as a
+  restaurant recommender would be misleading in exactly the way the
+  project rules explicitly warn against (no fabricated/cosmetically
+  framed results). Rather than force a stretch goal that doesn't fit
+  the data, skipping it and documenting why is the more defensible call
+  for an interview setting. If a real customer-item interaction log
+  existed, the natural next step would be implicit-feedback matrix
+  factorization (e.g. `implicit` library's ALS) treating order counts
+  per customer-restaurant pair as confidence-weighted implicit ratings.
+
+**Status: core project complete, documented, and committed. Repo is in
+a clean, reproducible state.**
