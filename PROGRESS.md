@@ -176,5 +176,46 @@ timestamps, honest notes -- not a polished doc.
     the interaction reasoning was sound, the practical impact is just
     small in this dataset.
 
-**Next up:** final evaluation (step 10) -- comparison table, cross-
-validate the best model, feature importance, leakage sanity check.
+- **Final evaluation.** Notebook section 9.
+  - Comparison table: Linear Regression (MAE 4.779, RMSE 5.981, R2
+    0.605), Random Forest (MAE 3.097, RMSE 3.802, R2 0.840), XGBoost
+    (MAE 3.126, RMSE 3.863, R2 0.835). Picked **Random Forest** as final
+    model -- marginally better test MAE, and comparably strong with
+    only light tuning.
+  - 5-fold CV on the training set (test set untouched): MAE
+    3.029 +/- 0.019, consistent with test MAE of 3.097 -- no sign the
+    single train/test split got lucky or unlucky.
+  - Feature importance (RF): top features are `distance_x_traffic`
+    (0.221), `Delivery_person_Ratings` (0.204), `Delivery_person_Age`
+    (0.106), `Vehicle_condition` (0.106), `weather_Sunny` (0.088),
+    `distance_km` (0.087). Surprise worth noting honestly: raw
+    `traffic_ordinal` importance is low (0.023) even though EDA showed
+    a clean traffic-vs-time relationship -- explained by
+    `distance_x_traffic` already carrying that signal, so the tree
+    splits on the interaction term instead of the raw traffic column
+    (importance reflects "which feature got split on", not standalone
+    causal weight). Courier rating and vehicle condition mattering more
+    than raw distance was not what I expected going in, but it's a
+    plausible operational story (rating/vehicle condition as proxies
+    for real-world speed and reliability), not a red flag.
+  - **Leakage sanity check** (R2=0.84 is a big jump over the 0.605
+    baseline, explicitly investigated per the project rules rather than
+    accepted at face value): train MAE (2.532) vs test MAE (3.097) shows
+    normal RF overfit behavior, not a cliff; no single feature or top-2
+    combo dominates importance (top 2 sum to 0.53, not near-1.0, which
+    is what you'd expect if a target-proxy had snuck in); the excluded-
+    column assert from step 5 re-confirmed. **Conclusion: no leakage
+    found** -- the RF/XGBoost improvement over linear regression comes
+    from capturing non-linear and interaction effects, not from a
+    mishandled column. Separately flagging (not a leakage issue, an
+    honesty-about-the-number issue): distance values are banded/
+    discretized rather than continuous, suggesting this dataset may be
+    partially synthetic/simulated rather than raw GPS traces -- which
+    means the 0.84 R2 here likely reflects unusually clean underlying
+    relationships in this specific dataset, and shouldn't be assumed to
+    carry over to a live system with noisier real-world GPS/traffic
+    data. Noting this explicitly in the README limitations.
+
+**Core ETA project (Product.md steps 1-10) is complete.** Next: README
+and INTERVIEW_NOTES.md (step 12), then -- only if time remains -- the
+optional recommendation stretch goal (step 11).
