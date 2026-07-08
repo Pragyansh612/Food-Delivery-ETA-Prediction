@@ -112,4 +112,25 @@ timestamps, honest notes -- not a polished doc.
   - Final feature set: 40 columns (from 20 raw). Verified
     `src/features.py` reproduces the same shape/columns as the notebook.
 
-**Next up:** leakage review (step 6), then train/test split (step 7).
+- **Leakage review.** Notebook section 5. Framed the prediction problem
+  explicitly: ETA at the moment the order is placed, not a mid-delivery
+  update. That framing is what decides what counts as leakage.
+  - Excluded as genuine leakage risk: `Time_Order_picked` (doesn't exist
+    yet at order-placement time -- it's generated once a courier reaches
+    the restaurant, downstream of the prediction point) and
+    `Delivery_person_ID` (risk of the model memorizing per-courier
+    historical averages instead of learning generalizable relationships;
+    a properly time-windowed courier-average feature would be a
+    legitimate future addition but wasn't attempted here).
+  - Excluded for redundancy/generalization (not leakage): `ID`, raw
+    `Order_Date`/`Time_Orderd` strings (superseded by derived hour/day/
+    weekend features), raw lat/long columns (superseded by
+    `distance_km`, to avoid overfitting to specific coordinate clusters
+    seen in training).
+  - Added an explicit `assert` in the notebook that none of the
+    excluded columns end up in the final feature list -- cheap
+    insurance against accidentally leaving one in.
+  - Final feature count: 27.
+
+**Next up:** train/test split (step 7), then baseline linear regression
+(step 8).
