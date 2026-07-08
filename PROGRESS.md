@@ -132,5 +132,16 @@ timestamps, honest notes -- not a polished doc.
     insurance against accidentally leaving one in.
   - Final feature count: 27.
 
-**Next up:** train/test split (step 7), then baseline linear regression
-(step 8).
+- **Train/test split.** Notebook section 6, mirrored in `src/split.py`.
+  Data spans 2022-02-11 to 2022-04-06 (~8 weeks) so did a time-based
+  split at the 80th percentile date (2022-03-29) rather than a random
+  shuffle: train = everything before that date (31,672 rows), test =
+  everything on/after (8,525 rows, 21.2%). Chose this over random
+  shuffling because it mirrors actual deployment (train on past, predict
+  future) and avoids a subtler leakage: a random shuffle could let
+  same-week/same-pattern orders sit in both train and test, making the
+  model look better than it would on genuinely unseen future orders.
+  Train/test target means are close (26.25 vs 26.59), so no obvious
+  regime shift between the two periods.
+
+**Next up:** baseline linear regression (step 8).
