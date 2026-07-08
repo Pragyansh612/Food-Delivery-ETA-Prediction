@@ -154,4 +154,27 @@ timestamps, honest notes -- not a polished doc.
   prep-queue signal), not implausibly high. This is the number every
   other model gets compared against.
 
-**Next up:** Random Forest + XGBoost comparison (step 9).
+- **Random Forest + XGBoost.** Notebook section 8, mirrored in
+  `src/train_models.py`. Light GridSearchCV (small grids, cv=3,
+  scoring=neg MAE), unscaled features (trees don't need scaling).
+  - Random Forest best params: max_depth=12, n_estimators=200.
+    **MAE=3.097, RMSE=3.802, R2=0.840** on test.
+  - XGBoost best params: learning_rate=0.05, max_depth=6,
+    n_estimators=400. **MAE=3.126, RMSE=3.863, R2=0.835** on test.
+  - Both tree models land close together and both clearly beat the
+    linear baseline (MAE 4.78 -> ~3.1, R2 0.605 -> ~0.84). RF edges out
+    XGBoost very slightly here -- within the range I'd expect from two
+    models with comparable capacity and only light tuning on tabular
+    data this size; not going to over-read a 0.03 MAE gap as "RF is
+    better than XGBoost" in general.
+  - Went back and tested the `distance_x_traffic` hypothesis from
+    feature engineering (that it should help linear regression more
+    than trees): refit linear regression without the term. MAE went
+    from 4.779 to 4.782 -- a real but genuinely tiny effect, not the
+    dramatic difference I'd have liked to report. Being honest about
+    this rather than dropping the check because it wasn't impressive:
+    the interaction reasoning was sound, the practical impact is just
+    small in this dataset.
+
+**Next up:** final evaluation (step 10) -- comparison table, cross-
+validate the best model, feature importance, leakage sanity check.
