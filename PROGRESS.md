@@ -60,6 +60,29 @@ timestamps, honest notes -- not a polished doc.
     distance/traffic-vs-time panel.
   - Committed as `EDA: target distribution and missingness`.
 
-**Next up:** cleaning (step 4) -- drop invalid coordinates, cap/clip the
-53 bad ratings, impute the genuinely missing categorical/numeric fields,
-strip whitespace and standardize category strings.
+- **Cleaning.** Notebook section 3, mirrored in `src/clean.py`. Order of
+  operations: parse strings/target first, then drop unrecoverable rows,
+  then impute what's left.
+  - Dropped 4,071 rows with invalid restaurant/delivery coordinates
+    (outside India bounds or (0,0) placeholder).
+  - Of what remained, dropped 24 more rows with out-of-range ratings
+    (>5) -- most of the original 53 bad-rating rows had already been
+    removed by the coordinate filter (overlap).
+  - Dropped 1,301 rows with missing `Time_Orderd`. Decided against
+    imputing a timestamp -- there's no defensible "typical" order time
+    to fabricate, and this field feeds directly into the hour-of-day
+    feature.
+  - Imputed the remaining low-missingness fields: age/ratings/
+    multiple_deliveries with median, traffic/festival/city with mode.
+    All under ~4% missing among what was left, spread randomly, so
+    simple imputation is defensible.
+  - Net: 45,593 -> 40,197 rows (88.2% kept). Zero missing values
+    remaining. Verified `src/clean.py` reproduces the exact same numbers
+    as the notebook when run standalone.
+  - Note: there were no negative durations in this dataset (target min
+    was 10 minutes) -- the actual bad-value issue here was invalid
+    coordinates and out-of-range ratings, not negative durations.
+  - Committed as `drop invalid coordinates and bad ratings`.
+
+**Next up:** feature engineering (step 5) -- haversine distance, time-of-day
+features, categorical encoding.
