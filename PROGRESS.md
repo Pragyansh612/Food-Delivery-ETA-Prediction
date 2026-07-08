@@ -84,5 +84,32 @@ timestamps, honest notes -- not a polished doc.
     coordinates and out-of-range ratings, not negative durations.
   - Committed as `drop invalid coordinates and bad ratings`.
 
-**Next up:** feature engineering (step 5) -- haversine distance, time-of-day
-features, categorical encoding.
+- **Feature engineering.** Notebook section 4, mirrored in `src/features.py`.
+  - `distance_km`: haversine between restaurant and delivery coordinates.
+    Range 1.5-21km after cleaning, mean 9.7km. Values still look banded
+    (same observation as EDA) but that's a data characteristic, not a
+    bug in the calculation.
+  - `order_hour`, `order_day_of_week`, `is_weekend` from `Order_Date` +
+    `Time_Orderd`. Hour distribution shows a clear lunch (11-12) and
+    dinner (17-23) concentration -- matches real delivery demand
+    patterns, which is a good sanity check that the timestamp parsing
+    is correct.
+  - `traffic_ordinal`: ordinal-encoded traffic (Low<Medium<High<Jam)
+    instead of one-hot, since it's a genuinely ordered variable and a
+    linear model should be allowed to use that order directly.
+  - One-hot encoded weather, order type, vehicle type, city (no natural
+    order in any of these).
+  - `festival_flag`: binary Yes/No.
+  - One deliberate interaction feature: `distance_x_traffic` (distance
+    times traffic ordinal). Reasoning: a traffic jam costs more total
+    minutes on a longer route than a short one -- a multiplicative
+    effect a plain linear model can't represent from the two features
+    separately, but that tree models can already discover on their own
+    via splits. This gives a concrete, checkable hypothesis for later:
+    the interaction term should help Linear Regression more than it
+    helps Random Forest/XGBoost. Deliberately did not add more
+    interaction terms beyond this one to avoid feature bloat "for show".
+  - Final feature set: 40 columns (from 20 raw). Verified
+    `src/features.py` reproduces the same shape/columns as the notebook.
+
+**Next up:** leakage review (step 6), then train/test split (step 7).
